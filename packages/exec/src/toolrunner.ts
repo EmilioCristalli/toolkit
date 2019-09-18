@@ -80,7 +80,7 @@ export class ToolRunner extends events.EventEmitter {
     data: Buffer,
     strBuffer: string,
     onLine: (line: string) => void
-  ): void {
+  ): string {
     try {
       let s = strBuffer + data.toString()
       let n = s.indexOf(os.EOL)
@@ -94,10 +94,11 @@ export class ToolRunner extends events.EventEmitter {
         n = s.indexOf(os.EOL)
       }
 
-      strBuffer = s
+      return s
     } catch (err) {
       // streaming lines to console is best effort.  Don't fail a build.
       this._debug(`error processing line. Failed with error ${err}`)
+      return ''
     }
   }
 
@@ -418,7 +419,7 @@ export class ToolRunner extends events.EventEmitter {
         this._getSpawnOptions(this.options, fileName)
       )
 
-      const stdbuffer = ''
+      let stdbuffer = ''
       if (cp.stdout) {
         cp.stdout.on('data', (data: Buffer) => {
           if (this.options.listeners && this.options.listeners.stdout) {
@@ -429,7 +430,7 @@ export class ToolRunner extends events.EventEmitter {
             optionsNonNull.outStream.write(data)
           }
 
-          this._processLineBuffer(data, stdbuffer, (line: string) => {
+          stdbuffer = this._processLineBuffer(data, stdbuffer, (line: string) => {
             if (this.options.listeners && this.options.listeners.stdline) {
               this.options.listeners.stdline(line)
             }

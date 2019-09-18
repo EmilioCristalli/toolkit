@@ -232,10 +232,15 @@ describe('@actions/exec', () => {
     const stdoutMock = jest.fn()
     const stderrMock = jest.fn()
 
+    const stdlineMock = jest.fn()
+    const errlineMock = jest.fn()
+
     const _testExecOptions = getExecOptions()
     _testExecOptions.listeners = {
       stdout: stdoutMock,
-      stderr: stderrMock
+      stderr: stderrMock,
+      stdline: stdlineMock,
+      errline: errlineMock
     }
 
     let exitCode = await exec.exec(
@@ -247,11 +252,15 @@ describe('@actions/exec', () => {
     exitCode = await exec.exec(`"${nodePath}"`, [stdErrPath], _testExecOptions)
     expect(exitCode).toBe(0)
 
-    expect(stdoutMock).nthCalledWith(1, new Buffer('this is output to stdout'))
-    expect(stdoutMock).nthCalledWith(2, new Buffer('more output to stdout'))
+    expect(stdoutMock).nthCalledWith(1, new Buffer('this is line 1\nthis is'))
+    expect(stdoutMock).nthCalledWith(2, new Buffer(' line 2\nthis is line 3'))
 
     expect(stderrMock).nthCalledWith(1, new Buffer('this is output to stderr'))
     expect(stderrMock).nthCalledWith(2, new Buffer('more output to stderr'))
+
+    expect(stdlineMock).nthCalledWith(1, "this is line 1")
+    expect(stdlineMock).nthCalledWith(2, "this is line 2")
+    expect(stdlineMock).nthCalledWith(3, "this is line 3")
   })
 
   it('Handles child process holding streams open', async function() {

@@ -1,2 +1,2 @@
-process.stdout.write('this is output to stdout');
-process.stdout.write('more output to stdout');
+process.stdout.write('this is line 1\nthis is');
+process.stdout.write(' line 2\nthis is line 3');
